@@ -21,6 +21,7 @@ add_action( 'admin_menu', 'terminator_submenu_page' );
 
 // Callback function for the submenu page
 function terminator_submenu_page_callback() {
+    $total_autoload = terminator_get_total_autoload();
     ?>
     <div class="wrap">
         <h1>Terminator</h1>
@@ -39,6 +40,7 @@ function terminator_submenu_page_callback() {
         <p>
             <button id="terminator-clear-all" class="button">Clear Autoload for All Rows</button>
         </p>
+        <?php echo '<p>Total autoload amount: ' . round($total_autoload, 2) . ' KB</p>'; ?>
     </div>
     <?php
 }
@@ -77,3 +79,10 @@ function terminator_ajax_clear_all_autoload() {
     wp_die();
 }
 add_action( 'wp_ajax_terminator_clear_all_autoload', 'terminator_ajax_clear_all_autoload' );
+
+// Helper function to get the total autoload amount
+function terminator_get_total_autoload() {
+    global $wpdb;
+    $total = $wpdb->get_var("SELECT SUM(LENGTH(option_value))/1024 FROM {$wpdb->options} WHERE autoload = 'yes'");
+    return $total;
+}
